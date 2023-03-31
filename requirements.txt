@@ -1,4 +1,6 @@
 openai==0.27.2
-langchain==0.0.127
+langchain==0.0.27
+faiss
+faiss-cpu
 slack_bolt==1.17.0
 python-dotenv
