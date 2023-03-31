@@ -54,7 +54,7 @@ def lambda_handler(event, context):
         channel_id = params["event"]["channel"]
         send_on_slack(text, channel_id)
     
-    if params["event"]["type"] == "app_mention":
+    if params["event"]["type"] == "message":
         text = f"Hey <@{params['event']['user']}>, How can i help you today?"
         channel_id = params["event"]["channel"]
         send_on_slack(text, channel_id)
