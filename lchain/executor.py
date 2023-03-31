@@ -7,10 +7,8 @@ class Executor:
         self.configuration = Configuration()
         self.lexecutor = LExecutor()
 
-    def execute(self):
-        execoutput = self.lexecutor.lexec()
+    def execute(self, text):
+        execoutput = self.lexecutor.lexec(text)
         print(execoutput)
 
-if __name__ == '__main__':
-    executor = Executor()
-    executor.execute()
+        return execoutput

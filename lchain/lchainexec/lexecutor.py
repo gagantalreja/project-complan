@@ -14,13 +14,12 @@ class LExecutor:
             store = pickle.load(f)
         store.index = index
         print(type(store))
-        self.qa_chain = VectorDBQAWithSourcesChain.from_llm(llm=self.ai_model, vectorstore=store)
+        self.qa_chain = VectorDBQAWithSourcesChain.from_llm(
+            llm=self.ai_model, vectorstore=store)
 
-    def lexec(self):
-        while True:
-            text = input()
-            if text.lower() == "bye":
-                return
-            result_response = self.qa_chain({"question": text})
-            print(result_response['answer'])
-            print(result_response['sources'])
+    def lexec(self, text):
+        result_response = self.qa_chain({"question": text})
+        print(result_response['answer'])
+        print(result_response['sources'])
+
+        return result_response['answer']

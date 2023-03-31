@@ -1,5 +1,6 @@
 import logging
 from config.config import Configuration
+from executor import Executor
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -13,6 +14,7 @@ logging.debug(config.env_obj.slack_oauth_token)
 # export SLACK_BOT_TOKEN=xoxb-***
 from slack_bolt import App
 app = App(token=config.env_obj.slack_oauth_token)
+executor = Executor()
 
 # Add functionality here
 
@@ -29,6 +31,8 @@ def event_test(body, say, logger):
 @app.event("message")
 def ack_the_rest_of_message_events(body, say, logger):
     logger.info(body)
+    logger.info(body['text'])
+    r = executor.execute(body['text'])
     say(f"You said something")
 
 
