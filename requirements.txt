@@ -1,3 +1,4 @@
 openai==0.27.2
 langchain==0.0.127
 slack_bolt==1.17.0
+python-dotenv
