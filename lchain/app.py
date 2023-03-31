@@ -31,8 +31,8 @@ def event_test(body, say, logger):
 @app.event("message")
 def ack_the_rest_of_message_events(body, say, logger):
     logger.info(body)
-    logger.info(body['text'])
-    r = executor.execute(body['text'])
+    logger.info(body['event'])
+    r = executor.execute(body['event']['text'])
     say(f"You said something")
 
 
