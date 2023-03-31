@@ -33,7 +33,7 @@ def ack_the_rest_of_message_events(body, say, logger):
     logger.info(body)
     logger.info(body['event'])
     r = executor.execute(body['event']['text'])
-    say(f"You said something")
+    say(r)
 
 
 @app.event("app_home_opened")
