@@ -1,10 +1,15 @@
-from langchain.llms import OpenAI
+from langchain import OpenAI, ConversationChain
 
 class LExecutor:
     def __init__(self):
-        self.temperature = 0.3
+        self.temperature = 0
         self.ai_model = OpenAI(temperature=self.temperature)
+        self.chat_model = ConversationChain(llm=self.ai_model, verbose=False)
+
 
     def lexec(self):
-        text = "What is a good name for tech company to power healthcare data?"
-        return self.ai_model(text)
+        while True:
+            text = input()
+            if text.lower() == "bye":
+                return
+            print(self.chat_model.predict(input=text))
