@@ -4,3 +4,5 @@ faiss
 faiss-cpu
 slack_bolt==1.17.0
 python-dotenv
+markdownify 
+atlassian-python-api
