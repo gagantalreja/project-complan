@@ -50,15 +50,23 @@ def main():
     if not os.path.exists(basepath):
         os.mkdir(basepath)
 
+    total_tokens = 0
+
     for page in args.pages.split(","):
-        print("Parsing page: ", page)
-        page_id = confluence.get_page_id(args.space, page)
-        content = confluence.get_page_by_id(page_id, expand="body.storage,version")
-        markdown = AtlassianConverter().convert(content['body']['storage']['value'])
 
-        with open(f"{basepath}/{'_'.join(page.split())}", 'w') as f:
-            f.write(markdown)
+        try:
+            print("Parsing page: ", page)
+            page_id = confluence.get_page_id(args.space, page)
+            content = confluence.get_page_by_id(page_id, expand="body.storage,version")
+            markdown = AtlassianConverter().convert(content['body']['storage']['value'])
+            total_tokens += len(markdown)
 
+            with open(f"{basepath}/{'_'.join(page.split())}", 'w') as f:
+                f.write(markdown)
+        except Exception as e:
+            print(e)
+
+    print("Processing complete. Total count of words is:", total_tokens)
 
 if __name__ == '__main__':
     main()
