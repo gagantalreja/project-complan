@@ -1,6 +1,6 @@
 from config.config import Configuration
 from lchainexec.lexecutor import LExecutor
-
+import logging
 
 class Executor:
     def __init__(self):
@@ -9,6 +9,6 @@ class Executor:
 
     def execute(self, text):
         execoutput = self.lexecutor.lexec(text)
-        print(execoutput)
+        logging.debug(execoutput)
 
         return execoutput

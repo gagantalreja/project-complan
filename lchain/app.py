@@ -1,24 +1,21 @@
 import logging
+from slack_bolt import App
 from config.config import Configuration
 from executor import Executor
 from dotenv import load_dotenv
 
 load_dotenv()
 
-logging.basicConfig(level=logging.DEBUG)
+LOG_FORMAT = '%(clientip)-15s - - [%(asctime)s] %(user)-8s %(message)s'
+logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
 config = Configuration()
 
 logging.debug(config.env_obj.slack_oauth_token)
 
-# export SLACK_SIGNING_SECRET=***
-# export SLACK_BOT_TOKEN=xoxb-***
-from slack_bolt import App
 app = App(token=config.env_obj.slack_oauth_token)
 executor = Executor()
 
-# Add functionality here
-
-@app.middleware  # or app.use(log_request)
+@app.middleware
 def log_request(logger, body, next):
     logger.debug(body)
     return next()
@@ -30,17 +27,15 @@ def event_test(body, say, logger):
 
 @app.event("message")
 def ack_the_rest_of_message_events(body, say, logger):
-    logger.info(body)
     logger.info(body['event'])
-    r = executor.execute(body['event']['text'])
-    say(r)
-
+    response = executor.execute(body['event']['text'])
+    say(response)
 
 @app.event("app_home_opened")
 def handle_app_home_opened(body, say, logger):
     logger.info(body)
-    say("Hi")
+    say("Hi <@{user}>".format(user=body['event']['user']))
 
 
 if __name__ == "__main__":
-    app.start(3000)  # POST http://localhost:3000/slack/events
+    app.start(3000)

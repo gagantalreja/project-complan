@@ -1,5 +1,6 @@
 from langchain import OpenAI, ConversationChain
 from langchain.chains import VectorDBQAWithSourcesChain
+import logging
 import faiss
 import pickle
 
@@ -13,13 +14,13 @@ class LExecutor:
         with open("lchain/resources/readme.pkl", "rb") as f:
             store = pickle.load(f)
         store.index = index
-        print(type(store))
+        logging.debug(type(store))
         self.qa_chain = VectorDBQAWithSourcesChain.from_llm(
             llm=self.ai_model, vectorstore=store)
 
     def lexec(self, text):
         result_response = self.qa_chain({"question": text})
-        print(result_response['answer'])
-        print(result_response['sources'])
+        logging.debug(result_response['answer'])
+        logging.debug(result_response['sources'])
 
         return result_response['answer']
