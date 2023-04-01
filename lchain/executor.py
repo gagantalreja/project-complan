@@ -2,6 +2,7 @@ from config.config import Configuration
 from lchainexec.lexecutor import LExecutor
 import logging
 
+
 class Executor:
     def __init__(self):
         self.configuration = Configuration()

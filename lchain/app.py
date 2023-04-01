@@ -15,26 +15,30 @@ logging.debug(config.env_obj.slack_oauth_token)
 app = App(token=config.env_obj.slack_oauth_token)
 executor = Executor()
 
+
 @app.middleware
 def log_request(logger, body, next):
     logger.debug(body)
     return next()
+
 
 @app.event("app_mention")
 def event_test(body, say, logger):
     logger.info(body)
     say("What's up?")
 
+
 @app.event("message")
 def ack_the_rest_of_message_events(body, say, logger):
-    logger.info(body['event'])
-    response = executor.execute(body['event']['text'])
+    logger.info(body["event"])
+    response = executor.execute(body["event"]["text"])
     say(response)
+
 
 @app.event("app_home_opened")
 def handle_app_home_opened(body, say, logger):
     logger.info(body)
-    say("Hi <@{user}>".format(user=body['event']['user']))
+    say("Hi <@{user}>".format(user=body["event"]["user"]))
 
 
 if __name__ == "__main__":
