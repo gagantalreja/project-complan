@@ -1,0 +1,131 @@
+A guide for all known issues related to FAAS and steps that can be of help if someone comes across these issues:
+
+Not able to deploy a FAAS function
+==================================
+
+If someone is trying to deploy a FAAS function, following error scenarios have been seen:
+
+* **A 502 response from the curl request -** In such a case, we can check if the analytics-gateway pod is running or not. If the pod is down there can be several reasons for it like the secrets might be missing from vault or there is resource crunch.
+* **curl request returns an error response -** In such cases, the service account attached to the analytics-gateway pod might not have appropriate permissions. Following manifest can be used to verify the role and service account that is attached to the gateway pod:
+
+```apiVersion: v1
+kind: ServiceAccount
+metadata:
+ name: analytics-gateway
+automountServiceAccountToken: true
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+ name: read-pods
+subjects:
+- kind: ServiceAccount
+ name: analytics-gateway
+roleRef:
+ kind: Role
+ name: pod-reader
+ apiGroup: rbac.authorization.k8s.io
+
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+ name: pod-reader
+rules:
+- apiGroups:
+ - ""
+ resources:
+ - resourcequotas
+ - pods
+ verbs:
+ - list
+ - watch
+ - create
+ - update
+ - patch
+ - get
+- apiGroups:
+ - apps
+ - extensions
+ resources:
+ - deployments
+ verbs:
+ - list
+ - watch
+ - create
+ - update
+ - patch
+ - get
+ - delete
+- apiGroups:
+ - autoscaling
+ resources:
+ - horizontalpodautoscalers
+ verbs:
+ - list
+ - create
+ - update
+ - patch
+ - get
+ - delete
+- apiGroups:
+ - batch
+ resources:
+ - jobs
+ verbs:
+ - list
+ - watch
+ - create
+ - update
+ - patch
+ - get
+ - delete
+```
+
+
+No data is visible in the output\_status table in PG
+====================================================
+
+If someone is able to deploy the function, it is expected that the data should reflect in the output tables in PG. If the data is not present there, it can happen that:
+
+* Execution Master is down
+* The PG user being used does not have appropriate set of permissions
+
+Data not present in Snowflake
+=============================
+
+The function is deployed and run successfully but the data is not visible in the temp tables or main table on Snowflake. There is no one reason for this to happen and can happen due to multiple issues. Some of them that are common, are as follows:
+
+* **The set of EMPIs that were processed, did not generate any output:** This is not an issue only a case where the set of EMPI that has been processed by the function did not generate any output, so there is nothing to add in snowflake. Hence, no data is visible on snowflake.
+* **Kafka Connector is not deployed properly:** Kafka is the main link component that puts data into snowflake. If the function generates an output, it is written to a kafka topic. The kafka-connect pod reads the data from those topics and puts into a snowflake stage. Following issues related to kafka can occur:
+
+
+	+ **Connector not deployed:** There are several functions like py-visit, py-risk, py-quality etc that are deployed via FAAS. For each of them, there are different kafka connector configurations. If the connector is not deployed, kafka won’t send data to snowflake.
+	+ **Connector configuration is wrong:** Infra deploys the kafka connectors and it can happen that the configuration supplied is wrong. Either the topic names can be wrong or the snowflake url can be erroneous. The connector configuration can be validated from [this](https://gitlab.innovaccer.com/infrastructure/products-helm-charts/-/blob/snowflake-stage/charts/postdeployment/charts/kafka_connector_deploy_script/templates/connector-config-json.yaml) page.
+	+ **Access Issue:** The snowflake user supplied in the kafka connector might not have the right set of permissions to create the stage or pipe or insert data in either of them due to which the connector will not be able to add data to snowflake stage.
+* **Data is present in snowflake stage but does not reflect in temp table:** Kafka connect moves the data from kafka topics to an internal snowflake stage and after that a snowflake pipe is responsible for moving data to temp table. Kafka connect keeps checking if the data is in the stage. If it finds the data it triggers the pipe which moves the data to temp table. 
+
+
+	+ **The stage was deleted manually:** The query history of snowflake can help in knowing if the stage has been deleted before. In such case, one needs to also delete the snowflake pipe that was created and restart the kafka connect. This happens because snowflake maintains a mapping for pipe and stage. If the stage was deleted and the pipe was not, kafka connect will only recreate the stage and the mapping will be lost. Hence, no data transfer will happen from stage to temp table via pipe. For reference, please check out the comments on this similar issue:
+	+ **The pipe was not created:** If the pipe is not present in snowflake, you can try restarting the kafka connet pods. If the case still remains, the DB team can help here.
+* **Data is present in temp table but does not reflect in main table:** Once the data is present in the temp table, there is no dependency over kafka connect. From temp table to main table, the data is moved using tasks and procedures. The task gets triggered every 10 minutes and if there is data present in temp table, it moves it to the main table. If there is a case, where data is not visible in main table, the Analytics and DB teams can help debug this issue.
+
+Function execution is slow
+==========================
+
+FAAS is expected to spin up a lot of pods to reduce the execution time of the function for a large dataset. To facilitate this we have HPAs in place for every function that are created when the function is deployed. They are responsible for the scaling of pods. If the function execution is slow, following issues might happen:
+
+* **HPA is absent:** Check if the function HPA is present or not. If not, we can redeploy the function and try or connect with FAAS team.
+* **HPA is present but pods are not scaling:** In such a case, the issue might be with the metric-server deployment running in the kube-system namespace. HPA gets the CPU/Mem utilisation data from metric server and if it is down, HPA won't have the data and pods won’t scale. To check this we can check if the metric-server is deployed and further, check the logs for metric server to see the issues. Re-deploying the metric-server can also be a quick hack to solve this issue.
+* **Pods are scaling but are stuck in pending:** In such a case, we might need to check if the node-group has reached its max capacity. The pods might be stuck in pending because there are no nodes left to schedule the pods and new nodes cannot be created because the node group has maxed out its capacity.
+
+FAAS UI Issues
+==============
+
+* **FAAS tab not visible in the navigation bar on UI:** In such a case, you can check that the `FAAS_SERVICE_ADDR` variable is present in the ***webui configmap*** and it is pointing to analytics-gateway.
+* **FAAS tab is visible on UI but FAAS does not load:** In such a case, you can check the `FAAS_SERVICE_TIMEOUT` variable in the ***webui configmap***. If not present, you can add it there. The value of this variable should be >= 100000.
+* **No logs visible for FAAS on UI:** In this case, the ***faas-pg-consumer*** service might be down due to missing credentials or any other reason.
+
+This is not a conclusive list of issues. These are the issues that are most commonly reported and occur very frequently. In case you find a issue not present here, please feel free to add.
+
