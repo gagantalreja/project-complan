@@ -9,8 +9,8 @@ class LExecutor:
         self.temperature = 0
         self.ai_model = OpenAI(temperature=self.temperature)
         # self.chat_model = ConversationChain(llm=self.ai_model, verbose=False)
-        index = faiss.read_index("lchain/resources/docs.index")
-        with open("lchain/resources/faiss_store1.pkl", "rb") as f:
+        index = faiss.read_index("lchain/resources/readme.index")
+        with open("lchain/resources/readme.pkl", "rb") as f:
             store = pickle.load(f)
         store.index = index
         print(type(store))
