@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-LOG_FORMAT = '%(clientip)-15s - - [%(asctime)s] %(user)-8s %(message)s'
+LOG_FORMAT = '[%(asctime)s] -- %(message)s'
 logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
 config = Configuration()
 
