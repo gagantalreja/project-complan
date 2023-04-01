@@ -8,7 +8,7 @@ import pickle
 
 class LExecutor:
     def __init__(self):
-        self.temperature = 0.3
+        self.temperature = 0
         self.ai_model = OpenAI(temperature=self.temperature)
         # self.chat_model = ConversationChain(llm=self.ai_model, verbose=False)
         index = faiss.read_index("lchain/resources/inno_doc.index")
@@ -55,8 +55,11 @@ class LExecutor:
             template=combine_prompt_template, input_variables=["summaries", "question"]
         )
         self.qa_chain = VectorDBQAWithSourcesChain.from_llm(
-            llm=self.ai_model, vectorstore=store, combine_prompt=self.combine_prompt
+            llm=self.ai_model, vectorstore=store
         )
+        # self.qa_chain = VectorDBQAWithSourcesChain.from_llm(
+        #     llm=self.ai_model, vectorstore=store, combine_prompt=self.combine_prompt
+        # )
 
     def lexec(self, text):
         result_response = self.qa_chain({"question": text})
