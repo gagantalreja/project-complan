@@ -66,4 +66,6 @@ class LExecutor:
         logging.debug(result_response["answer"])
         logging.debug(result_response["sources"])
 
-        return result_response["answer"]
+        result_string = "{0}.\nSOURCES: {1}".format(result_response["answer"], result_response["sources"])
+
+        return result_string
