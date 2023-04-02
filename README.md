@@ -16,3 +16,13 @@ AMA Bot uses NLP based question processing to answer any questions over the docu
     - Who should i connect with to upgrade my EKS cluster?
     - What is feature environment?
     - What is one click?
+
+## Current training set
+    - EMPI
+    - Kubernetes/EKS
+    - One CLick
+    - CI/CD
+    - CSVParser
+    - Hl7Parser
+    - Inference
+    - X12Parser
