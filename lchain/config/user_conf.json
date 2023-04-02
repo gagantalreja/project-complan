@@ -1,0 +1,18 @@
+{
+  "source": "confluence",
+  "input_options": {
+    "url": "https://innovaccer.atlassian.net",
+    "space": "IE",
+    "pages": [
+      "Troubleshooting FAAS Issues"
+    ]
+  },
+  "output_options": {
+    "name_suffix": "IE"
+  },
+  "model_tuning": {
+    "llm_temperature": 0,
+    "llm_context_character_len": 2046,
+    "llm_context_sep": "\n"
+  }
+}

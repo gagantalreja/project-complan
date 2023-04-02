@@ -1,17 +1,24 @@
-from langchain import OpenAI, ConversationChain
+import os
+
+from langchain import OpenAI
 from langchain.chains import VectorDBQAWithSourcesChain
 import logging
 import faiss
 import pickle
+from lchain.config.config import Config
 
 
 class LExecutor:
     def __init__(self):
-        self.temperature = 0
+        conf = Config()
+        base_path = "training_components/resources/pickle_files"
+        space = conf.user_conf["input_options"]["space"]
+        pickle_file_path = f"{os.getcwd()}/{base_path}/{space}/{space}.pkl"
+        index_file_path = f"{os.getcwd()}/{base_path}/{space}/{space}.index"
+        self.temperature = conf.user_conf["model_tuning"]["llm_temperature"]
         self.ai_model = OpenAI(temperature=self.temperature)
-        # self.chat_model = ConversationChain(llm=self.ai_model, verbose=False)
-        index = faiss.read_index("lchain/resources/readme.index")
-        with open("lchain/resources/readme.pkl", "rb") as f:
+        index = faiss.read_index(index_file_path)
+        with open(pickle_file_path, "rb") as f:
             store = pickle.load(f)
         store.index = index
         logging.debug(type(store))

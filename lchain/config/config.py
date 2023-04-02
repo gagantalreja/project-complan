@@ -1,13 +1,21 @@
 import os
+import json
+from dotenv import load_dotenv
 
 config_object = None
+
+load_dotenv()
 
 
 class Config:
     def __init__(self):
-        self.open_api_key = os.environ.get("OPENAI_API_KEY", "1234XXXXX4321")
-        self.slack_signing_secret = os.environ.get("SIGNING_SECRET", "XXX")
-        self.slack_oauth_token = os.environ.get("SLACK_TOKEN", "XXX")
+        self.open_api_key = os.environ.get("OPENAI_API_KEY")
+        self.slack_signing_secret = os.environ.get("SIGNING_SECRET")
+        self.slack_oauth_token = os.environ.get("SLACK_TOKEN")
+        self.jira_user = os.environ.get("JIRA_USER")
+        self.jira_token = os.environ.get("JIRA_TOKEN")
+        with open(f"{os.getcwd()}/config/user_conf.json") as f:
+            self.user_conf = json.load(f)
 
 
 def load_config(force=True):

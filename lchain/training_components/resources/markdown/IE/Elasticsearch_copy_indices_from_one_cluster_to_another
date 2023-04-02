@@ -1,0 +1,18 @@
+### **To create all indices snapshot.**
+
+`curl -XPOST  <endpoint>/\_snapshot/cms-snap/<name\_of\_snapshot>/\_restore -d '{ "indices": "\*,-.\*", "ignore\_unavailable": true, "include\_global\_state": true, "partial": false, "rename\_pattern": "index\_(.+)",
+
+  "rename\_replacement": "restored\_index\_$1" }'`
+
+### **To create one or more indices snapshot**
+
+`curl -XPUT <endpoint>/\_snapshot/cms-snap/<name\_of\_snapshot> -d '{ "indices": "indices<name>", "ignore\_unavailable": true, "include\_global\_state": true, "partial": false,"include\_aliases": true  }'`
+
+### **To restore snapshot**
+
+`curl -XPOST  <endpoint>/\_snapshot/cms-snap/<name\_of\_snapshot>/\_restore -d '{ "indices": "\*,-.\*", "ignore\_unavailable": true, "include\_global\_state": true, "partial": false, "rename\_pattern": "index\_(.+)",
+
+  "rename\_replacement": "restored\_index\_$1" }'`
+
+Note: Elastic search version should match for both clusters
+
